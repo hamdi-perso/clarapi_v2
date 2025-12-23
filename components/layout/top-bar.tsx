@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { UserMenu } from "@/components/ui/user-menu";
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -32,12 +33,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
-          <button
-            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-secondary transition-colors"
-            aria-label="User profile"
-          >
-            <User className="h-5 w-5" />
-          </button>
+          <UserMenu />
         </div>
       </div>
     </header>

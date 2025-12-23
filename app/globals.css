@@ -65,3 +65,97 @@ body {
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+/* Amplify UI Customization */
+[data-amplify-authenticator] {
+  --amplify-colors-background-primary: var(--background);
+  --amplify-colors-background-secondary: var(--card);
+  --amplify-colors-font-primary: var(--foreground);
+  --amplify-colors-font-secondary: var(--muted-foreground);
+  --amplify-colors-brand-primary-10: var(--primary);
+  --amplify-colors-brand-primary-80: var(--primary);
+  --amplify-colors-brand-primary-90: var(--primary);
+  --amplify-colors-brand-primary-100: var(--primary);
+  --amplify-colors-border-primary: var(--border);
+  --amplify-colors-border-secondary: var(--border);
+  --amplify-radii-small: 0.5rem;
+  --amplify-radii-medium: 0.75rem;
+  --amplify-radii-large: 0.75rem;
+  --amplify-space-small: 0.5rem;
+  --amplify-space-medium: 1rem;
+  --amplify-space-large: 1.5rem;
+}
+
+[data-amplify-authenticator] [data-amplify-router] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+[data-amplify-authenticator] [data-amplify-router] > * {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+[data-amplify-authenticator] form {
+  padding: 0 !important;
+  border: none !important;
+}
+
+[data-amplify-authenticator] fieldset {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+[data-amplify-authenticator] [data-amplify-form] {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+[data-amplify-authenticator] > div > div {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-amplify-authenticator] button[type="submit"],
+[data-amplify-authenticator] button[data-variation="primary"] {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+[data-amplify-authenticator] button[type="submit"]:hover,
+[data-amplify-authenticator] button[data-variation="primary"]:hover {
+  background-color: var(--primary);
+  opacity: 0.9;
+}
+
+[data-amplify-authenticator] input,
+[data-amplify-authenticator] select {
+  background-color: var(--background);
+  border-color: var(--input);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+}
+
+[data-amplify-authenticator] input:focus,
+[data-amplify-authenticator] select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+[data-amplify-authenticator] a {
+  color: var(--primary);
+}
+
+[data-amplify-authenticator] a:hover {
+  opacity: 0.8;
+}

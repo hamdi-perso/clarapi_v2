@@ -160,7 +160,26 @@ L'application est prête à être testée avec npm run dev ou npm run tauri:dev 
 
 
 
-- Authentication (signup / login / logout) + user profile
+## Authentication (signup / login / logout) + user profile
+- Setup auth pages + user context
+```markdown
+Role : Developpeur front nextjs + tauri et expert aws amplify GEN2
+Existant : Nous avons déja créer le backend amplify avec l'authentification cognito + user pool + identity pool
+Action : A partir de l'icone user, s'il n'est pas connecté, on doit avoir un bouton pour signin et un autre pour signup, 
+chaque bouton ouvre une modal avec le formulaire correspondant. 
+Une fois connecté, pour le moment jsute l'email et un bouton logout.
+Utilise aws amplify GEN2 pour toute la partie authentification et affichage automatiquement des formulaires de signin et signup.
+
+## Plan
+☐ Install Amplify dependencies                                                                                                                                                                                                
+☐ Configure Amplify with outputs file                                                                                                                                                                                         
+☐ Create AuthModal component                                                                                                                                                                                                  
+☐ Create UserMenu component                                                                                                                                                                                                   
+☐ Update TopBar with UserMenu                                                                                                                                                                                                 
+☐ Style Amplify UI components
+```
+
+
 - AI and keys user (Indexdb)
 - Import + validation + normalisation + sidebar
 - Chat et reception des intents
