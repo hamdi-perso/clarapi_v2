@@ -33,7 +33,7 @@ export default function SignInPage() {
             if (user) {
               router.push("/");
             }
-            return null;
+            return <></>;
           }}
         </Authenticator>
 

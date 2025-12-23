@@ -33,7 +33,7 @@ export default function SignUpPage() {
             if (user) {
               router.push("/");
             }
-            return null;
+            return <></>;
           }}
         </Authenticator>
 
