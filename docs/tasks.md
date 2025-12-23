@@ -16,9 +16,7 @@
 ```markdown
 ### Prompt
 Role : Developpeur front nextjs + tauri
-Action : Crée une application nextjs + tauri vide qui se lance en local dans les deux platefomormes (web + desktop), se build et se package correctement
-
-Voici quelques commandes utils 
+Action : voici un projet nextjs vide, je veux qu'il soit compatible aussi avec Tauri
 
 
 
@@ -63,6 +61,95 @@ Pour tester:
 Le projet est maintenant compatible Tauri! 
 ```
 
+## Main layout (topbar + sidebar + mainLayout)
+- Create main panel
+```markdown
+### Prompt
+Role : Developpeur et designer front nextjs + tauri
+Action : Crée le layout principal de l'application avec
+- topbar : contenant a gauche le logo @public/logo_clarapi.png et a droite un theme switch (entre dark et light) et une icone profil utilisateur (icone avatar)
+- Sidebar : compatible mobile (drawer) avec les sections vide : Import (bouton); APIs et Chat
+- MainLayout : zone principale de chat vide avec un input + bouton envoyer pour envoyer un message, il faut que ca fonctionne aussi dans le cas de entrée et ctrl+enter pour envoyer le message.
+
+Pour le design, tu fait un design professionelle, épuré, classe, moderne (comme celui de google et de apple). Utilise l'orange, c'est la couleur de notre logo
+
+### Plan
+☐ Check logo and install dependencies                                                                                                                                                                                         
+☐ Configure Tailwind theme with orange colors                                                                                                                                                                                 
+☐ Setup ThemeProvider                                                                                                                                                                                                         
+☐ Create TopBar component                                                                                                                                                                                                     
+☐ Create Sidebar with mobile drawer                                                                                                                                                                                           
+☐ Create ResizablePanel component                                                                                                                                                                                             
+☐ Create ChatArea component                                                                                                                                                                                                   
+☐ Create MainLayout wrapper                                                                                                                                                                                                   
+☐ Update app layout and page
+
+## Modification effectuées
+
+1. ThemeProvider (components/providers/theme-provider.tsx)                                                                                                                                                                       
+   - Wrapper pour next-themes                                                                                                                                                                                                     
+   - Gestion du mode dark/light
+2. ThemeToggle (components/ui/theme-toggle.tsx)                                                                                                                                                                                  
+   - Bouton switch entre dark et light                                                                                                                                                                                            
+   - Icônes Sun/Moon de lucide-react                                                                                                                                                                                              
+   - Gestion du state mounted pour éviter hydration mismatch
+3. TopBar (components/layout/top-bar.tsx)                                                                                                                                                                                        
+   - Logo Clarapi à gauche (32x32px)                                                                                                                                                                                              
+   - Nom "Clarapi" masqué sur mobile                                                                                                                                                                                              
+   - Hamburger menu pour mobile (bouton Menu)                                                                                                                                                                                     
+   - Theme toggle + icône User à droite                                                                                                                                                                                           
+   - Sticky top avec backdrop blur
+4. Sidebar (components/layout/sidebar.tsx)                                                                                                                                                                                       
+   - Drawer mobile avec overlay noir semi-transparent                                                                                                                                                                             
+   - Largeur fixe 288px (w-72)                                                                                                                                                                                                    
+   - 3 sections:
+    - Import: bouton orange avec icône Upload
+    - APIs: titre + état vide
+    - Chat: titre + état vide                                                                                                                                                                                                    
+      - Animation slide pour mobile
+5. ResizablePanel (components/layout/resizable-panel.tsx)                                                                                                                                                                        
+   - Gestion largeur sidebar desktop (200-500px, défaut 280px)                                                                                                                                                                    
+   - Handle de resize vertical avec feedback hover orange                                                                                                                                                                         
+   - Sauvegarde dans localStorage                                                                                                                                                                                                 
+   - Smooth dragging experience                                                                                                                                                                                                   
+   - Responsive: drawer mobile, resizable desktop
+6. ChatArea (components/chat/chat-area.tsx)                                                                                                                                                                                      
+   - Zone messages vide centrée avec placeholder                                                                                                                                                                                  
+   - Input textarea auto-resize (48px à 200px)                                                                                                                                                                                    
+   - Bouton Send orange avec icône                                                                                                                                                                                                
+   - Keyboard shortcuts:
+    - Enter → envoyer
+    - Ctrl+Enter → nouvelle ligne                                                                                                                                                                                                
+      - States: loading, disabled                                                                                                                                                                                                    
+      - Helper text pour les raccourcis
+7. MainLayout (components/layout/main-layout.tsx)                                                                                                                                                                                
+   - Wrapper principal                                                                                                                                                                                                            
+   - Gestion état mobile menu                                                                                                                                                                                                     
+   - Structure: TopBar + ResizablePanel
+
+Fichiers modifiés:
+
+- app/globals.css : Thème orange (#ff6b35), variables dark/light
+- app/layout.tsx : Intégration ThemeProvider, metadata Clarapi
+- app/page.tsx : Utilisation MainLayout + ChatArea
+
+Design:
+- Orange primary (#ff6b35)
+- Police système (SF Pro / Roboto style)
+- Spacing généreux, transitions fluides
+- Borders subtiles, backdrop blur
+- Dark mode élégant (gris foncés #0a0a0a, #171717)
+
+Fonctionnalités:                                                                                                                                                                                                                 
+✅ TopBar sticky avec logo, theme switch, avatar                                                                                                                                                                                 
+✅ Sidebar responsive (drawer mobile)                                                                                                                                                                                            
+✅ Resize sidebar desktop (200-500px, persisté)                                                                                                                                                                                  
+✅ Chat input avec Enter/Ctrl+Enter                                                                                                                                                                                              
+✅ Dark/Light mode complet                                                                                                                                                                                                       
+✅ Design moderne et épuré
+
+L'application est prête à être testée avec npm run dev ou npm run tauri:dev ! 
+```
 
 
 
@@ -73,8 +160,7 @@ Le projet est maintenant compatible Tauri!
 
 
 
-
-- Main layout (topbar + sidebar + mainLayout)
+- Authentication (signup / login / logout) + user profile
 - AI and keys user (Indexdb)
 - Import + validation + normalisation + sidebar
 - Chat et reception des intents

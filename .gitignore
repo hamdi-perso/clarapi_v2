@@ -42,3 +42,7 @@ next-env.d.ts
 
 # tauri
 /src-tauri/target
+
+# idea
+/.idea
+
