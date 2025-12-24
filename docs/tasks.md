@@ -172,16 +172,34 @@ Utilise aws amplify GEN2 pour toute la partie authentification et affichage auto
 
 
 ## AI and keys user (Indexdb)
+```markdown
 Role : Developpeur front nextjs + tauri et expert en gestion indexdb 
 Action : Dans l'icone d'en a droite de l'utilisateur, ajoute un lien vers une page de settings, dans cette page, nous aurons les sections suivants :
 - Section information générale : email, changement mot de passe (via amplify)
 - Section AI Keys : liste des clés AI (provider, nom, clé api masqué)
 
 Chaque les valeurs de clé apis, il seront sauvegarder dans une base distante et synchroniser toujours entre le local et le distant. 
-Peux tu utiliser amplify appsync pour le faire, on définit un modèle config avec pour le moment les clés d'apis. et pour le changement de mot de passe, passe par les utilitaires de aws amplify
+Peux tu utiliser amplify appsync pour le faire, on définit un modèle config avec pour le moment les clés d'apis. 
+Et pour le changement de mot de passe, passe par les utilitaires de aws amplify
+
+### Plan
+☒ Backend Amplify AppSync
+☐ IndexedDB Setup - schema and utilities
+☐ Create encryption utilities for API keys
+☐ Generate GraphQL client code
+☐ Create sync service (IndexedDB ↔ AppSync)
+☐ Create Settings page structure
+☐ Add Settings link to UserMenu
+☐ Implement General Info section (email + password)
+☐ Implement AI Keys section with providers list
+☐ Wire up auto-sync logic
+```
 
 
 ## Import + validation + normalisation + sidebar
+
+
+
 - Chat et reception des intents
 - Intent markdown
 - Intent Endpoint selector

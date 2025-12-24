@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Settings } from "lucide-react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import Link from "next/link";
 
@@ -53,6 +53,14 @@ export function UserMenu() {
                     {user.signInDetails?.loginId || user.username}
                   </p>
                 </div>
+                <Link
+                  href="/settings"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full px-3 py-2 text-left text-sm rounded-md hover:bg-secondary transition-colors flex items-center gap-2 mb-1"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="w-full px-3 py-2 text-left text-sm rounded-md hover:bg-secondary transition-colors flex items-center gap-2"
