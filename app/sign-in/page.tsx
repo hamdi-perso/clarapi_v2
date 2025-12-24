@@ -43,6 +43,12 @@ export default function SignInPage() {
             Sign up
           </Link>
         </div>
+
+        <div className="mt-4 text-center text-sm">
+          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+            ← Back to home
+          </Link>
+        </div>
       </div>
     </div>
   );

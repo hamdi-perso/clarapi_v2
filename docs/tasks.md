@@ -177,6 +177,9 @@ Action : Dans l'icone d'en a droite de l'utilisateur, ajoute un lien vers une pa
 - Section information générale : email, changement mot de passe (via amplify)
 - Section AI Keys : liste des clés AI (provider, nom, clé api masqué)
 
+Chaque les valeurs de clé apis, il seront sauvegarder dans une base distante et synchroniser toujours entre le local et le distant. 
+Peux tu utiliser amplify appsync pour le faire, on définit un modèle config avec pour le moment les clés d'apis. et pour le changement de mot de passe, passe par les utilitaires de aws amplify
+
 
 ## Import + validation + normalisation + sidebar
 - Chat et reception des intents
