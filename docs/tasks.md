@@ -151,15 +151,6 @@ Fonctionnalités:
 L'application est prête à être testée avec npm run dev ou npm run tauri:dev ! 
 ```
 
-
-
-
-
-
-
-
-
-
 ## Authentication (signup / login / logout) + user profile
 - Setup auth pages + user context
 ```markdown
@@ -180,8 +171,14 @@ Utilise aws amplify GEN2 pour toute la partie authentification et affichage auto
 ```
 
 
-- AI and keys user (Indexdb)
-- Import + validation + normalisation + sidebar
+## AI and keys user (Indexdb)
+Role : Developpeur front nextjs + tauri et expert en gestion indexdb 
+Action : Dans l'icone d'en a droite de l'utilisateur, ajoute un lien vers une page de settings, dans cette page, nous aurons les sections suivants :
+- Section information générale : email, changement mot de passe (via amplify)
+- Section AI Keys : liste des clés AI (provider, nom, clé api masqué)
+
+
+## Import + validation + normalisation + sidebar
 - Chat et reception des intents
 - Intent markdown
 - Intent Endpoint selector
