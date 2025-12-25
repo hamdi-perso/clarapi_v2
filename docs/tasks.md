@@ -559,10 +559,108 @@ Note: La config est stockée dans le navigateur (localStorage), donc:
 - Ne se synchronise pas entre appareils (pour l'instant)
 
 ```
+- Chat with api key
+```markdown
+Role : Developpeur front nextjs + tauri et expert en spécification apis
+Action : maintenant nous allons travailler sur le chat. Quand l'utilisateur envoi un message, on vois le modèle, on voi la configuration pour récupérer l'apikey,
+- s'il n'y a pas d'api key, il faut lui dire qu'il faut mettre sa clé d'api pour ce modèle, et un lien qui lui redirige vers le settings
+- S'il a une api key pour ce modèle, alors on vois le message envoyé et le message recu dans des bulles
+
+Il faut que ca soit compatible les deux thème, dark et white
 
 
+### Modifications effectuées
+Nouveaux fichiers
 
-- Intent markdown
+1. lib/chat/types.ts
+
+Types TypeScript pour les messages:
+- ChatMessage: id, role (user/assistant/system), content, timestamp, modelId
+- MessageRole: type pour les rôles
+
+2. components/chat/chat-message.tsx
+
+Composant pour afficher les messages en bulles:
+
+Fonctionnalités:
+- ✅ Bulles différenciées pour user et assistant
+- ✅ Avatars: Icône User pour l'utilisateur, Bot pour l'assistant
+- ✅ Couleurs adaptatives:
+    - User: bg-primary (bleu) avec texte blanc
+    - Assistant: bg-muted avec texte foreground
+- ✅ Header avec nom (You/Model name) + heure
+- ✅ Bordures arrondies avec coin coupé (rounded-tr-sm pour user, rounded-tl-sm pour assistant)
+- ✅ Messages système centrés avec style différent
+- ✅ Compatible dark/light mode via les variables Tailwind
+
+3. components/chat/missing-api-key-message.tsx
+
+Message d'avertissement quand l'API key manque:
+
+Design:
+- ✅ Fond jaune semi-transparent (bg-yellow-500/10)
+- ✅ Icône d'alerte
+- ✅ Message clair avec le provider et le modèle
+- ✅ Bouton "Go to Settings" qui redirige vers /settings
+- ✅ Compatible dark/light mode
+
+4. Mise à jour de components/chat/chat-area.tsx
+
+Nouvelles fonctionnalités:
+- ✅ État messages: Array de ChatMessage
+- ✅ Vérification API key: Avant d'envoyer, vérifie si la clé existe pour le provider
+- ✅ Affichage conditionnel:
+    - Pas de messages → Message de bienvenue
+    - Messages présents → Affichage des bulles
+    - Pas d'API key → Affichage du warning
+- ✅ Auto-scroll vers le bas quand nouveaux messages
+- ✅ Mock response pour tester (TODO: vraie API)
+- ✅ Gestion d'erreur avec message système
+
+Flow d'utilisation
+
+Cas 1: Pas d'API key
+
+1. User tape un message
+2. Clique sur Send
+3. ⚠️ Message affiché: "API Key Required for Anthropic"
+4. Bouton "Go to Settings" pour configurer
+
+Cas 2: Avec API key
+
+1. User tape: "Hello"
+2. Clique sur Send
+3. Message user affiché dans bulle bleue
+4. Indicateur de chargement (isLoading)
+5. Réponse assistant affichée dans bulle grise
+6. Auto-scroll vers le bas
+
+Design compatible dark/light
+
+Variables Tailwind utilisées (s'adaptent automatiquement):
+- bg-primary / text-primary-foreground
+- bg-muted / text-foreground
+- bg-card / text-card-foreground
+- text-muted-foreground
+- Warnings: bg-yellow-500/10 + text-yellow-600 dark:text-yellow-500
+
+Exemple visuel:
+┌─────────────────────────────────┐
+│                      [You] 10:30│
+│              ┌──────────────────┤
+│              │ Hello!          ││
+│              └──────────────────┘
+│                                  │
+│ [Claude Opus] 10:30             │
+│┌────────────────────────┐       │
+││ Hi! How can I help?   │       │
+│└────────────────────────┘       │
+└─────────────────────────────────┘
+
+```
+
+
+## Intent markdown
 - Intent Endpoint selector
 - Intent NeedMoreinfo
 - Intent endpoint execution + result display

@@ -1,30 +1,99 @@
 "use client";
 
-import { useState, useRef, KeyboardEvent } from "react";
+import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { Send } from "lucide-react";
 import { ModelSelector } from "./model-selector";
+import { ChatMessageBubble } from "./chat-message";
+import { MissingApiKeyMessage } from "./missing-api-key-message";
 import { useChatConfig } from "@/hooks/use-chat-config";
+import { useApiKeys } from "@/hooks/use-api-keys";
+import type { ChatMessage } from "@/lib/chat/types";
 
 export function ChatArea() {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showApiKeyWarning, setShowApiKeyWarning] = useState(false);
   const { selectedModel, setSelectedModel } = useChatConfig();
+  const { getKey } = useApiKeys();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = async () => {
-    if (!message.trim() || isLoading) return;
+    console.log('[ChatArea] handleSend called');
+    console.log('[ChatArea] message:', message);
+    console.log('[ChatArea] isLoading:', isLoading);
 
-    setIsLoading(true);
-    console.log("Sending message:", message, "with model:", selectedModel.id);
+    if (!message.trim() || isLoading) {
+      console.log('[ChatArea] Returning early - no message or loading');
+      return;
+    }
 
-    // TODO: Implement actual message sending logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Check if API key exists for this provider
+    console.log('[ChatArea] Checking API key for provider:', selectedModel.provider);
+    const apiKey = getKey(selectedModel.provider);
+    console.log('[ChatArea] API key found:', !!apiKey);
 
+    if (!apiKey) {
+      console.log('[ChatArea] No API key, showing warning');
+      setShowApiKeyWarning(true);
+      return;
+    }
+
+    console.log('[ChatArea] API key exists, proceeding with message send');
+    setShowApiKeyWarning(false);
+    const userMessage = message.trim();
     setMessage("");
-    setIsLoading(false);
+    setIsLoading(true);
 
+    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
+    }
+
+    // Add user message
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: userMessage,
+      timestamp: Date.now(),
+    };
+    setMessages(prev => [...prev, userMsg]);
+
+    try {
+      // TODO: Implement actual API call here
+      console.log("Sending message:", userMessage, "with model:", selectedModel.id);
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Add assistant response (mock for now)
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `This is a mock response from ${selectedModel.name}. The actual API integration will be implemented next.`,
+        timestamp: Date.now(),
+        modelId: selectedModel.id,
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+
+      // Add error message
+      const errorMsg: ChatMessage = {
+        id: `error-${Date.now()}`,
+        role: 'system',
+        content: 'Failed to send message. Please try again.',
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,13 +124,30 @@ export function ChatArea() {
     <div className="flex flex-col h-full">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-3xl mx-auto h-full flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <p className="text-lg">Start a conversation</p>
-            <p className="text-sm mt-2">
-              Type your message below to get started
-            </p>
-          </div>
+        <div className="max-w-3xl mx-auto">
+          {messages.length === 0 && !showApiKeyWarning ? (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <p className="text-lg">Start a conversation</p>
+                <p className="text-sm mt-2">
+                  Type your message below to get started
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="py-4">
+              {messages.map((msg) => (
+                <ChatMessageBubble key={msg.id} message={msg} />
+              ))}
+              {showApiKeyWarning && (
+                <MissingApiKeyMessage
+                  provider={selectedModel.provider}
+                  modelName={selectedModel.name}
+                />
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
       </div>
 

@@ -141,10 +141,12 @@ export async function saveApiKey(provider: Provider, apiKey: string): Promise<vo
   console.log(`[Sync] Saving API key for ${provider}...`);
 
   try {
-    const userId = await getUserId();
+    // Get user ID (will be 'anonymous' if not authenticated)
+    const currentUserId = await getCurrentUserId();
+    const isAnonymous = currentUserId === 'anonymous';
 
     // Encrypt the API key
-    const encryptedKey = await encryptApiKey(apiKey, userId);
+    const encryptedKey = await encryptApiKey(apiKey, currentUserId);
 
     // Check if exists
     const existing = await localDB.getApiKeyByProvider(provider);
@@ -154,16 +156,18 @@ export async function saveApiKey(provider: Provider, apiKey: string): Promise<vo
       provider,
       apiKey: encryptedKey,
       updatedAt: Date.now(),
-      syncStatus: 'pending',
+      syncStatus: isAnonymous ? 'synced' : 'pending', // Mark as synced for anonymous (no cloud sync)
     };
 
     // Save locally
     await localDB.saveApiKey(record);
 
-    console.log(`[Sync] API key for ${provider} saved locally`);
+    console.log(`[Sync] API key for ${provider} saved locally (${isAnonymous ? 'offline mode' : 'will sync'})`);
 
-    // Trigger background sync
-    setTimeout(() => fullSync(), 100);
+    // Trigger background sync only if authenticated
+    if (!isAnonymous) {
+      setTimeout(() => fullSync(), 100);
+    }
   } catch (error) {
     console.error(`[Sync] Failed to save API key for ${provider}:`, error);
     throw error;
@@ -210,12 +214,13 @@ export async function deleteApiKey(provider: Provider): Promise<void> {
  */
 export async function getDecryptedApiKey(provider: Provider): Promise<string | null> {
   try {
-    const userId = await getUserId();
+    // Get user ID (will be 'anonymous' if not authenticated)
+    const currentUserId = await getCurrentUserId();
     const record = await localDB.getApiKeyByProvider(provider);
 
     if (!record) return null;
 
-    return await decryptApiKey(record.apiKey, userId);
+    return await decryptApiKey(record.apiKey, currentUserId);
   } catch (error) {
     console.error(`[Sync] Failed to decrypt API key for ${provider}:`, error);
     return null;

@@ -73,6 +73,15 @@ export function UserMenu() {
               // Unauthenticated state
               <div className="p-2">
                 <Link
+                  href="/settings"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full px-3 py-2 text-left text-sm rounded-md hover:bg-secondary transition-colors flex items-center gap-2 mb-1"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+                <div className="border-t border-border my-2"></div>
+                <Link
                   href="/sign-in"
                   onClick={() => setIsOpen(false)}
                   className="block w-full px-3 py-2 text-left text-sm rounded-md hover:bg-secondary transition-colors mb-1"
