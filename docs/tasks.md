@@ -197,7 +197,22 @@ Et pour le changement de mot de passe, passe par les utilitaires de aws amplify
 
 
 ## Import + validation + normalisation + sidebar
+```markdown
+Role : Developpeur front nextjs + tauri et expert en spécification apis
+Action : Dans la sidebar, le bouton import doit ouvrir une modal qui permet d'importer un fichier de spécification d'api (swagger /openapi, json yaml ou yml). Il doit aussi le valider:
+- Si valide : on ferme la modale et on le normalise dans un format interne et on l'ajoute avec appsync et dans le cache indexdb, on doit gérer la synchro entre les deux
+- Si invalide : on affiche les erreurs de validation dans la modale
 
+### Plan
+☐ Add ApiSpec model to AppSync backend
+☐ Create IndexedDB schema for API specs
+☐ Install OpenAPI validation library
+☐ Create validation service
+☐ Create sync service for API specs
+☐ Create import modal component
+☐ Create API list component for àààsidebar
+☐ Wire up import button in sidebar
+```
 
 
 - Chat et reception des intents

@@ -2,13 +2,15 @@
 
 import { Upload, Database, MessageSquare } from "lucide-react";
 import { useEffect } from "react";
+import { ApiList } from "@/components/api/api-list";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onImportClick: () => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onImportClick }: SidebarProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -43,7 +45,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full p-4 gap-6 overflow-y-auto">
           {/* Import Section */}
           <div className="space-y-2">
-            <button className="w-full h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-medium">
+            <button
+              onClick={onImportClick}
+              className="w-full h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-medium"
+            >
               <Upload className="h-4 w-4" />
               Import
             </button>
@@ -55,9 +60,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Database className="h-4 w-4" />
               APIs
             </div>
-            <div className="px-2 py-8 text-center text-sm text-muted-foreground">
-              No APIs yet
-            </div>
+            <ApiList />
           </div>
 
           {/* Chat Section */}

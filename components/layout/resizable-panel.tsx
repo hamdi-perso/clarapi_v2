@@ -7,12 +7,14 @@ interface ResizablePanelProps {
   children: React.ReactNode;
   isMobileMenuOpen: boolean;
   onMobileMenuClose: () => void;
+  onImportClick: () => void;
 }
 
 export function ResizablePanel({
   children,
   isMobileMenuOpen,
   onMobileMenuClose,
+  onImportClick,
 }: ResizablePanelProps) {
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [isResizing, setIsResizing] = useState(false);
@@ -78,7 +80,7 @@ export function ResizablePanel({
         className="hidden lg:block relative h-full"
         style={{ width: `${sidebarWidth}px` }}
       >
-        <Sidebar isOpen={false} onClose={onMobileMenuClose} />
+        <Sidebar isOpen={false} onClose={onMobileMenuClose} onImportClick={onImportClick} />
 
         {/* Resize Handle */}
         <div
@@ -95,7 +97,7 @@ export function ResizablePanel({
 
       {/* Mobile Sidebar */}
       <div className="lg:hidden">
-        <Sidebar isOpen={isMobileMenuOpen} onClose={onMobileMenuClose} />
+        <Sidebar isOpen={isMobileMenuOpen} onClose={onMobileMenuClose} onImportClick={onImportClick} />
       </div>
 
       {/* Main Content */}

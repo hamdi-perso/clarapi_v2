@@ -26,6 +26,7 @@
     "@aws-amplify/backend-cli": "^1.8.1",
     "@tailwindcss/postcss": "^4",
     "@tauri-apps/cli": "^2.9.6",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

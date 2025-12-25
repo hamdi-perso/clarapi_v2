@@ -1,17 +1,17 @@
-import { fetchAuthSession } from 'aws-amplify/auth';
 import * as localDB from '@/lib/db/api-keys';
 import * as remoteAPI from '@/lib/api/api-keys-api';
 import { encryptApiKey, decryptApiKey } from '@/lib/crypto/encryption';
 import type { ApiKeyRecord, Provider } from '@/lib/db/schema';
+import { getCurrentUserId } from '@/lib/auth/user-utils';
 
 /**
  * Get current user ID for encryption
+ * Throws if user is not authenticated
  */
 async function getUserId(): Promise<string> {
-  const session = await fetchAuthSession();
-  const userId = session.userSub;
+  const userId = await getCurrentUserId();
 
-  if (!userId) {
+  if (userId === 'anonymous') {
     throw new Error('User not authenticated');
   }
 

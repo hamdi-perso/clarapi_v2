@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AmplifyProvider } from "@/components/providers/amplify-provider";
+import { ApiSpecsProvider } from "@/contexts/api-specs-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AmplifyProvider>
-            {children}
+            <ApiSpecsProvider>
+              {children}
+            </ApiSpecsProvider>
           </AmplifyProvider>
         </ThemeProvider>
       </body>

@@ -5,6 +5,7 @@ import * as syncService from '@/lib/sync/api-keys-sync';
 import * as localDB from '@/lib/db/api-keys';
 import { maskApiKey } from '@/lib/crypto/encryption';
 import type { Provider, ApiKeyRecord } from '@/lib/db/schema';
+import { Hub } from 'aws-amplify/utils';
 
 export function useApiKeys() {
   const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
@@ -94,6 +95,34 @@ export function useApiKeys() {
       window.removeEventListener('online', handleOnline);
     };
   }, [sync]);
+
+  // Listen to auth state changes and reload data
+  useEffect(() => {
+    const hubListenerCancelToken = Hub.listen('auth', async ({ payload }) => {
+      console.log('[useApiKeys] Auth event:', payload.event);
+
+      switch (payload.event) {
+        case 'signedIn':
+          console.log('[useApiKeys] User signed in, reloading keys...');
+          await loadKeys();
+          if (navigator.onLine) {
+            await sync();
+          }
+          break;
+        case 'signedOut':
+          console.log('[useApiKeys] User signed out, switching to anonymous database...');
+          // Clear current keys and reload from anonymous database
+          setKeys([]);
+          await loadKeys();
+          break;
+        case 'tokenRefresh':
+          // Silent token refresh, no need to reload
+          break;
+      }
+    });
+
+    return () => hubListenerCancelToken();
+  }, [loadKeys, sync]);
 
   // Get key by provider
   const getKey = useCallback((provider: Provider): ApiKeyRecord | undefined => {

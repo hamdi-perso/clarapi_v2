@@ -1,12 +1,12 @@
-import { openDB, type ApiKeyRecord, type Provider } from './schema';
+import { openDB, type ApiSpecRecord } from './schema';
 import { getCurrentUserId } from '@/lib/auth/user-utils';
 
-export async function getAllApiKeys(): Promise<ApiKeyRecord[]> {
+export async function getAllApiSpecs(): Promise<ApiSpecRecord[]> {
   const userId = await getCurrentUserId();
   const db = await openDB(userId);
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['apiKeys'], 'readonly');
-    const store = transaction.objectStore('apiKeys');
+    const transaction = db.transaction(['apiSpecs'], 'readonly');
+    const store = transaction.objectStore('apiSpecs');
     const request = store.getAll();
 
     request.onsuccess = () => resolve(request.result);
@@ -14,26 +14,25 @@ export async function getAllApiKeys(): Promise<ApiKeyRecord[]> {
   });
 }
 
-export async function getApiKeyByProvider(provider: Provider): Promise<ApiKeyRecord | null> {
+export async function getApiSpecById(id: string): Promise<ApiSpecRecord | null> {
   const userId = await getCurrentUserId();
   const db = await openDB(userId);
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['apiKeys'], 'readonly');
-    const store = transaction.objectStore('apiKeys');
-    const index = store.index('provider');
-    const request = index.get(provider);
+    const transaction = db.transaction(['apiSpecs'], 'readonly');
+    const store = transaction.objectStore('apiSpecs');
+    const request = store.get(id);
 
     request.onsuccess = () => resolve(request.result || null);
     request.onerror = () => reject(request.error);
   });
 }
 
-export async function saveApiKey(record: ApiKeyRecord): Promise<void> {
+export async function saveApiSpec(record: ApiSpecRecord): Promise<void> {
   const userId = await getCurrentUserId();
   const db = await openDB(userId);
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['apiKeys'], 'readwrite');
-    const store = transaction.objectStore('apiKeys');
+    const transaction = db.transaction(['apiSpecs'], 'readwrite');
+    const store = transaction.objectStore('apiSpecs');
     const request = store.put(record);
 
     request.onsuccess = () => resolve();
@@ -41,16 +40,13 @@ export async function saveApiKey(record: ApiKeyRecord): Promise<void> {
   });
 }
 
-export async function deleteApiKey(provider: Provider): Promise<void> {
+export async function deleteApiSpec(id: string): Promise<void> {
   const userId = await getCurrentUserId();
   const db = await openDB(userId);
-  const record = await getApiKeyByProvider(provider);
-  if (!record) return;
-
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['apiKeys'], 'readwrite');
-    const store = transaction.objectStore('apiKeys');
-    const request = store.delete(record.id);
+    const transaction = db.transaction(['apiSpecs'], 'readwrite');
+    const store = transaction.objectStore('apiSpecs');
+    const request = store.delete(id);
 
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
@@ -58,11 +54,11 @@ export async function deleteApiKey(provider: Provider): Promise<void> {
 }
 
 export async function updateSyncStatus(
-  provider: Provider,
-  status: ApiKeyRecord['syncStatus'],
+  id: string,
+  status: ApiSpecRecord['syncStatus'],
   lastSyncedAt?: number
 ): Promise<void> {
-  const record = await getApiKeyByProvider(provider);
+  const record = await getApiSpecById(id);
   if (!record) return;
 
   record.syncStatus = status;
@@ -70,5 +66,5 @@ export async function updateSyncStatus(
     record.lastSyncedAt = lastSyncedAt;
   }
 
-  await saveApiKey(record);
+  await saveApiSpec(record);
 }
