@@ -212,10 +212,356 @@ Action : Dans la sidebar, le bouton import doit ouvrir une modal qui permet d'im
 ☐ Create import modal component
 ☐ Create API list component for àààsidebar
 ☐ Wire up import button in sidebar
+
+### Modifications effectuées
+
+Changements implémentés
+
+1. User-scoped IndexedDB (lib/db/schema.ts)
+
+- Chaque utilisateur a maintenant sa propre base de données: clarapi-db-{userId}
+- Les utilisateurs anonymes utilisent: clarapi-db-anonymous
+- Fonction clearUserData(userId) pour nettoyer les données d'un utilisateur
+
+2. Utilitaires d'authentification (lib/auth/user-utils.ts)
+
+- getCurrentUserId(): Retourne l'ID de l'utilisateur connecté ou 'anonymous'
+- isAuthenticated(): Vérifie si l'utilisateur est authentifié
+
+3. Mise à jour des opérations DB
+
+- lib/db/api-keys.ts: Toutes les opérations utilisent maintenant getCurrentUserId()
+- lib/db/api-specs.ts: Toutes les opérations utilisent maintenant getCurrentUserId()
+
+4. Mise à jour des services de sync
+
+- lib/sync/api-specs-sync.ts: Utilise les nouveaux utilitaires d'auth
+- lib/sync/api-keys-sync.ts: Utilise les nouveaux utilitaires d'auth
+
+5. Écoute des événements d'authentification
+
+- contexts/api-specs-context.tsx: Écoute les événements signedIn/signedOut et recharge les données
+- hooks/use-api-keys.ts: Écoute les événements signedIn/signedOut et recharge les données
+
+Comment ça fonctionne
+
+Scénario 1: Utilisateur anonyme
+- Données stockées dans clarapi-db-anonymous
+- Pas de sync avec le cloud
+
+Scénario 2: Utilisateur se connecte
+- Événement signedIn détecté
+- Les données sont rechargées depuis clarapi-db-{userId}
+- Sync automatique avec AppSync
+
+Scénario 3: Utilisateur se déconnecte
+- Événement signedOut détecté
+- Les specs/keys sont effacées de l'état React
+- Les données sont rechargées depuis clarapi-db-anonymous
+- L'ancienne base clarapi-db-{oldUserId} reste sur le disque mais n'est plus accessible
+
+Résultat
+
+✅ Quand vous vous déconnectez, vous ne voyez plus les specs de l'utilisateur connecté
+✅ Chaque utilisateur a ses propres données isolées
+✅ Le passage entre utilisateurs est automatique
+✅ Les données restent persistantes pour chaque utilisateur
+
+Vous pouvez tester maintenant:
+1. Connectez-vous et importez des specs
+2. Déconnectez-vous → les specs disparaissent
+3. Re-connectez-vous → les specs réapparaissent
+```
+- Tree sidebar
+```markdown
+perfect, maintenant, le sidebar, je veux voir l'arboressence de chaque api en te basant sur le path, je veux comment une aroberescence de fichier/dossier (tree)
+
+### modifications effectuées
+Nouveaux fichiers
+
+1. lib/parser/openapi-tree.ts
+
+Utilitaire qui parse les specs OpenAPI et construit une structure d'arbre:
+- Parse les paths et leurs méthodes HTTP (GET, POST, PUT, DELETE, etc.)
+- Construit une arborescence hiérarchique basée sur les segments de path
+- Exemple: /users/{id}/posts devient:
+  📁 users
+  📁 {id}
+    - GET /users/{id}/posts
+    - POST /users/{id}/posts
+
+2. components/api/api-tree-view.tsx
+
+Composant React qui affiche l'arborescence:
+- Dossiers collapsibles/expandables
+- Icônes de dossiers (ouvert/fermé)
+- Méthodes HTTP colorées (GET=bleu, POST=vert, DELETE=rouge, etc.)
+- Affiche le summary ou operationId de chaque endpoint
+- Navigation avec indentation pour montrer la hiérarchie
+
+3. Mise à jour de components/api/api-list.tsx
+
+- Ajout d'un chevron pour expand/collapse chaque API
+- Affichage de l'arborescence quand l'API est expandée
+- Parsing automatique de toutes les specs au chargement (useMemo pour performance)
+
+Fonctionnalités
+
+✅ Arborescence hiérarchique: Les endpoints sont groupés par leur path
+✅ Méthodes HTTP colorées:
+- 🔵 GET - bleu
+- 🟢 POST - vert
+- 🟡 PUT - jaune
+- 🔴 DELETE - rouge
+- 🟠 PATCH - orange
+
+✅ Collapsible: Chaque niveau de l'arborescence peut être ouvert/fermé
+✅ Auto-expand: Le premier niveau s'ouvre automatiquement
+✅ Tooltips: Affiche le summary de l'endpoint au survol
+
+Exemple de rendu
+
+Pour une spec avec ces paths:
+GET    /users
+POST   /users
+GET    /users/{id}
+DELETE /users/{id}
+GET    /posts
+GET    /posts/{id}/comments
+
+L'arborescence affichée sera:
+📂 MyAPI
+📁 users
+🔵 GET    List all users
+🟢 POST   Create user
+📁 {id}
+🔵 GET    Get user
+🔴 DELETE Delete user
+📁 posts
+🔵 GET Get all posts
+📁 {id}
+📁 comments
+🔵 GET Get comments
+
+Modifications apportées
+
+1. Structure d'arborescence corrigée (lib/parser/openapi-tree.ts)
+
+- Avant: Les méthodes étaient groupées sous le dernier segment de path
+- Maintenant: Chaque combinaison METHOD + PATH est une feuille distincte
+- Les segments intermédiaires sont des dossiers
+- Exemple:
+  📁 users
+  📁 {id}
+  GET /users/{id}
+  POST /users/{id}
+  DELETE /users/{id}
+
+2. Icônes et état par défaut
+
+- ✅ Icône de dossier (📁) sur tous les nœuds non-feuilles
+- ✅ Dossier ouvert (📂) quand expandé
+- ✅ Tous les dossiers sont collapsed par défaut quand on ouvre une API
+- ✅ Chevrons pour expand/collapse uniquement sur les dossiers
+
+3. Design amélioré des endpoints (feuilles)
+
+- Badge de méthode HTTP avec couleur de fond:
+    - 🔵 GET - bleu
+    - 🟢 POST - vert
+    - 🟡 PUT - jaune
+    - 🔴 DELETE - rouge
+    - 🟠 PATCH - orange
+    - 🟣 HEAD - violet
+    - ⚪ OPTIONS - gris
+- Format des feuilles: METHOD /path/complet
+- Police monospace pour les paths
+- Tooltip avec le summary de l'endpoint au survol
+
+4. Style général
+
+- Espacement amélioré (16px par niveau)
+- Transitions smooth sur hover
+- Bordures arrondies
+- Badge de méthode avec largeur fixe (14 caractères) pour l'alignement
+- Taille de police optimisée (text-xs)
+- Couleurs cohérentes avec le thème
+
+Résultat visuel
+
+Pour une API avec ces endpoints:
+GET    /pets
+POST   /pets
+GET    /pets/{petId}
+DELETE /pets/{petId}
+
+L'arborescence affichera (collapsed par défaut):
+📁 pets (collapsed)
+
+Quand on clique pour expand:
+📂 pets
+GET     /pets
+POST    /pets
+📁 {petId}
+
+Puis en expandant {petId}:
+📂 pets
+GET     /pets
+POST    /pets
+📂 {petId}
+GET    /pets/{petId}
+DELETE /pets/{petId}
+
+
+Corrections et ajouts
+
+1. Correction du positionnement du menu
+
+- Problème: Le menu était positionné par rapport au conteneur parent entier, donc quand l'arborescence était expandée, le menu apparaissait tout en bas
+- Solution: J'ai enveloppé le bouton trois points dans un <div className="relative"> et positionné le menu par rapport à ce conteneur
+- Résultat: Le menu apparaît maintenant directement sous les trois points, peu importe si l'arborescence est expandée ou non
+
+2. Ajout de l'option "View" (components/api/view-spec-modal.tsx)
+
+Nouvelle modale qui affiche le contenu de la spec avec:
+- ✅ Header avec le nom de l'API et le format (JSON/YAML)
+- ✅ Bouton Copy pour copier tout le contenu dans le presse-papiers
+- ✅ Feedback visuel ("Copied!") pendant 2 secondes après la copie
+- ✅ Affichage formaté avec <pre> et police monospace
+- ✅ Scroll pour les specs longues
+- ✅ Syntax highlighting via le background gris pour la lisibilité
+
+3. Menu mis à jour (components/api/api-list.tsx)
+
+Le menu contextuel contient maintenant:
+👁️ View
+🗑️ Delete
+
+Utilisation
+
+1. Survole une API dans la sidebar
+2. Clique sur les trois points (⋮)
+3. Le menu apparaît juste en dessous avec deux options:
+   - View: Ouvre une modale avec le code de la spec
+   - Delete: Supprime l'API (avec confirmation)
+4. Dans la modale View:
+   - Copie facilement tout le contenu avec le bouton "Copy"
+   - Scroll pour voir tout le contenu
+   - Ferme avec le X ou en cliquant à l'extérieur
+
+```
+
+## Chat et reception des intents
+- Model selector + chat input
+```markdown
+Role : Developpeur front nextjs + tauri et expert en spécification apis
+Action : Nous allons nous concentrer sur le panel de chat maintenant, je veux rajouter a l'input, un combobox petite pour le choix du modèle (GPT5, gemini3...) groupé par entreprise (Anthropic...) 
+
+### Modifications effectuées
+Nouveaux fichiers
+
+1. lib/ai/models.ts
+
+Configuration des modèles AI disponibles avec:
+- Interface AIModel: id, nom, provider, context window
+- Interface ModelGroup: Groupement par provider
+- Liste AI_MODELS avec 3 groupes:
+    - Anthropic: Claude Opus 4.5, Sonnet 4.5, Sonnet 4, Haiku 4
+    - OpenAI: GPT-5, GPT-4o, GPT-4 Turbo, GPT-4
+    - Google AI: Gemini 3 Ultra, Gemini 2 Pro, Gemini 2 Flash, Gemini 1.5 Pro
+- Fonctions utilitaires: getDefaultModel(), findModelById()
+
+2. components/chat/model-selector.tsx
+
+Combobox pour sélectionner le modèle avec:
+- ✅ Bouton compact affichant le modèle sélectionné
+- ✅ Dropdown qui s'ouvre vers le haut (au-dessus de l'input)
+- ✅ Groupement par provider avec headers (Anthropic, OpenAI, Google AI)
+- ✅ Affichage des détails: nom du modèle + context window
+- ✅ Indicateur visuel (✓) pour le modèle sélectionné
+- ✅ Auto-fermeture quand on clique à l'extérieur
+- ✅ Animation du chevron à l'ouverture/fermeture
+
+3. Mise à jour de components/chat/chat-area.tsx
+
+- Ajout du ModelSelector à gauche de l'input
+- État selectedModel pour tracker le modèle choisi
+- Le modèle est inclus dans handleSend (console.log pour l'instant)
+- Layout avec flex items-end pour aligner correctement tous les éléments
+
+Design et UX
+
+Position: À gauche de l'input de chat
+Taille: Compact (max-width 120px pour le label)
+Dropdown:
+- Largeur: 264px
+- Hauteur max: 400px (scrollable)
+- S'ouvre vers le haut pour ne pas masquer l'input
+
+Structure du dropdown:
+┌─ Anthropic ──────────────┐
+│ Claude Opus 4.5          │✓
+│ 200,000 tokens           │
+│ Claude Sonnet 4.5        │
+│ 200,000 tokens           │
+├─ OpenAI ─────────────────┤
+│ GPT-5                    │
+│ 128,000 tokens           │
+│ GPT-4o                   │
+│ 128,000 tokens           │
+├─ Google AI ──────────────┤
+│ Gemini 3 Ultra           │
+│ 1,000,000 tokens         │
+└──────────────────────────┘
+
+Par défaut: Claude Opus 4.5 est sélectionné
+
+Nouveaux fichiers
+
+hooks/use-chat-config.ts
+
+Hook personnalisé pour gérer la configuration du chat avec:
+
+Fonctionnalités:
+- ✅ Sauvegarde automatique dans localStorage quand le modèle change
+- ✅ Chargement automatique au montage du composant
+- ✅ Fallback sur le modèle par défaut (Claude Opus 4.5) si aucune config
+- ✅ État isLoaded pour éviter les sauvegardes prématurées
+
+Clé localStorage: clarapi-chat-config
+
+Structure sauvegardée:
+{
+"selectedModelId": "claude-opus-4-5"
+}
+
+Mise à jour de components/chat/chat-area.tsx
+
+- Remplacement de useState par useChatConfig()
+- Le modèle est maintenant persisté automatiquement
+
+Fonctionnement
+
+1. Premier lancement:
+   - Pas de config → utilise Claude Opus 4.5 par défaut
+   - Dès que tu sélectionnes un modèle → sauvegardé dans localStorage
+2. Lancements suivants:
+   - Charge le modèle depuis localStorage
+   - Tu retrouves toujours ton dernier choix
+3. Changement de modèle:
+   - Sélectionne un nouveau modèle
+   - Automatiquement sauvegardé
+   - Persiste même après fermeture/réouverture de l'app
+
+Note: La config est stockée dans le navigateur (localStorage), donc:
+- Indépendante de l'authentification
+- Spécifique à chaque navigateur/appareil
+- Ne se synchronise pas entre appareils (pour l'instant)
+
 ```
 
 
-## Chat et reception des intents
+
 - Intent markdown
 - Intent Endpoint selector
 - Intent NeedMoreinfo
