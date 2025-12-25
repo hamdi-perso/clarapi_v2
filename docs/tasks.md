@@ -215,7 +215,7 @@ Action : Dans la sidebar, le bouton import doit ouvrir une modal qui permet d'im
 ```
 
 
-- Chat et reception des intents
+## Chat et reception des intents
 - Intent markdown
 - Intent Endpoint selector
 - Intent NeedMoreinfo
